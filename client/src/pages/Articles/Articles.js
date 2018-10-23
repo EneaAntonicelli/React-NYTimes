@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import DeleteBtn from "../../components/DeleteBtn";
+import SaveBtn from "../../components/SaveBtn";
 import Jumbotron from "../../components/Jumbotron";
 import API from "../../utils/API";
 import { Link } from "react-router-dom";
 import { Col, Row, Container } from "../../components/Grid";
 import { List, ListItem } from "../../components/List";
-import { Input, TextArea, FormBtn } from "../../components/Form";
+import { Input, FormBtn } from "../../components/Form";
 
 class Articles extends Component {
   state = {
@@ -45,18 +46,28 @@ class Articles extends Component {
     });
   };
 
-  handleFormSubmit = event => {
-    event.preventDefault();
-    if (this.state.topic && this.state.startYear) {
-      API.saveArticle({
-        topic: this.state.topic,
-        startYear: this.state.startYear,
-        endYear: this.state.endYear
-      })
-        .then(res => this.loadArticles())
-        .catch(err => console.log(err));
-    }
+  saveArticle = (headline, link, date) => {
+    API.saveArticle({
+      headline: headline,
+      link: link,
+      date: date
+    })
+      .then(res => console.log("Article has been saved"))
+      .catch(err => console.log(err));
   };
+
+  // handleFormSubmit = event => {
+  //   event.preventDefault();
+  //   if (this.state.topic && this.state.startYear && this.state.endYear) {
+  //     API.saveArticle({
+  //       topic: this.state.topic,
+  //       startYear: this.state.startYear,
+  //       endYear: this.state.endYear
+  //     })
+  //       .then(res => this.loadArticles())
+  //       .catch(err => console.log(err));
+  //   }
+  // };
 
   render() {
     return (
@@ -120,7 +131,46 @@ class Articles extends Component {
           </Col>
         </Row>
         <Row>
-          <Col size="md-12 sm-12">
+          <Col size="md-12">
+            {this.state.articles.length ? (
+              <div className="panel panel-primary">
+                <div className="panel-heading">
+                  <h4>Results</h4>
+                </div>
+                <div className="panel-body">
+                  <List>
+                    {this.state.articles.map(article => (
+                      <ListItem
+                        key={article._id}
+                        headline={article.headline.main}
+                        link={article.web_url}
+                        date={article.pub_date}
+                      >
+                        <SaveBtn
+                          onClick={() =>
+                            this.saveArticle(
+                              article.headline.main,
+                              article.web_url,
+                              article.pub_date
+                            )
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </div>
+              </div>
+            ) : (
+              <ul className="list-group">
+                <li className="list-group-item">
+                  <h3>
+                    <em>Enter Search Term to Begin</em>
+                  </h3>
+                </li>
+              </ul>
+            )}
+          </Col>
+          {/* <Col size="md-12 sm-12">
             <Jumbotron>
               <h1>Saved Articles</h1>
             </Jumbotron>
@@ -142,7 +192,7 @@ class Articles extends Component {
             ) : (
               <h3>No Results to Display</h3>
             )}
-          </Col>
+          </Col> */}
         </Row>
       </Container>
     );
